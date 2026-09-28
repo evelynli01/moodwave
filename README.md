@@ -6,7 +6,7 @@ Users choose how they are feeling or what they are doing, select a vinyl from th
 
 ## Live Demo
 
-[View Moodwave](https://YOUR-MOODWAVE-URL.vercel.app)
+[View Moodwave]([https://YOUR-MOODWAVE-URL.vercel.app](https://moodwave-9jn7yu6qy-evelyn-9c5a.vercel.app/))
 
 ## Intended Audience
 
