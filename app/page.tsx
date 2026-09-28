@@ -1,139 +1,246 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+type Mode = "Mood" | "Moment";
+
+type SpotifyTrack = {
+  id: string;
+  title: string;
+  artist: string;
+  image: string | null;
+  spotifyUrl: string;
+};
+
+type RecordData = {
+  name: string;
+  tagline: string;
+  colors: string[];
+};
+
+const recordData: Record<string, RecordData> = {
+  Happy: {
+    name: "Happy",
+    tagline: "Bright days, turned all the way up.",
+    colors: ["#FDE047", "#FDBA74", "#FB7185", "#F9A8D4", "#86EFAC"],
+  },
+  Sad: {
+    name: "Sad",
+    tagline: "Soft edges, heavy feelings.",
+    colors: ["#64748B", "#172554", "#A5B4FC", "#94A3B8", "#67E8F9"],
+  },
+  Energetic: {
+    name: "Energetic",
+    tagline: "Fast pulse, full color.",
+    colors: ["#FF6B1A", "#EF233C", "#E9FF2A", "#FF2A8A", "#7C3AED"],
+  },
+  Calm: {
+    name: "Calm",
+    tagline: "Breathe out. Let everything soften.",
+    colors: ["#A7F3D0", "#2DD4BF", "#BAE6FD", "#99F6E4", "#FEF3C7"],
+  },
+  Romantic: {
+    name: "Romantic",
+    tagline: "Warm light, close distance.",
+    colors: ["#881337", "#FB7185", "#FECDD3", "#86198F", "#FFF7ED"],
+  },
+  Focused: {
+    name: "Focused",
+    tagline: "Clear mind, steady rhythm.",
+    colors: ["#1E3A8A", "#0F766E", "#9CA3AF", "#C4B5FD", "#F8FAFC"],
+  },
+  Studying: {
+    name: "Studying",
+    tagline: "Quiet focus for the pages ahead.",
+    colors: ["#78350F", "#FDE68A", "#FDBA74", "#FEF3C7", "#A16207"],
+  },
+  "Working Out": {
+    name: "Working Out",
+    tagline: "Move harder. Turn it louder.",
+    colors: ["#EF4444", "#F97316", "#FDE047", "#EC4899", "#7C3AED"],
+  },
+  Celebrating: {
+    name: "Celebrating",
+    tagline: "Big energy for a moment worth keeping.",
+    colors: ["#8B5CF6", "#FDE047", "#F472B6", "#67E8F9", "#FB923C"],
+  },
+  "Road Trip": {
+    name: "Road Trip",
+    tagline: "Windows down. Somewhere ahead.",
+    colors: ["#7DD3FC", "#FDBA74", "#FDE047", "#FB7185", "#38BDF8"],
+  },
+  Heartbreak: {
+    name: "Heartbreak",
+    tagline: "For everything you haven't let go of yet.",
+    colors: ["#7F1D1D", "#18181B", "#A78BFA", "#52525B", "#E4E4E7"],
+  },
+};
+
+const moods = ["Happy", "Sad", "Energetic", "Calm", "Romantic", "Focused"];
+
+const moments = [
+  "Studying",
+  "Working Out",
+  "Celebrating",
+  "Road Trip",
+  "Heartbreak",
+];
+
+const wait = (milliseconds: number) =>
+  new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 function AlbumLabel({ selection }: { selection: string }) {
-  if (selection === "Happy") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-yellow-300">
-        <div className="absolute -right-2 top-1 h-[70%] w-[70%] rounded-full bg-orange-400" />
-        <div className="absolute bottom-0 h-[25%] w-full bg-emerald-200" />
-        <div className="absolute left-[15%] top-[25%] h-[32%] w-[32%] rounded-full bg-pink-400" />
-      </div>
-    );
-  }
-
-  if (selection === "Sad") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-slate-800">
-        <div className="absolute -left-2 top-1 h-[70%] w-[70%] rounded-full bg-indigo-400" />
-        <div className="absolute bottom-[25%] h-[6%] w-full bg-slate-300" />
-        <div className="absolute bottom-[15%] h-[6%] w-full bg-blue-300" />
-      </div>
-    );
-  }
-
-  if (selection === "Energetic") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-lime-300">
-        <div className="absolute -right-2 -top-2 h-[65%] w-[65%] rotate-45 bg-orange-500" />
-        <div className="absolute bottom-[8%] left-[12%] h-[38%] w-[38%] rounded-full bg-fuchsia-500" />
-        <div className="absolute right-[5%] top-[45%] h-[14%] w-[55%] rotate-12 bg-red-500" />
-      </div>
-    );
-  }
-
-  if (selection === "Calm") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-stone-100">
-        <div className="absolute -left-3 top-1 h-[75%] w-[75%] rounded-full bg-sky-300" />
-        <div className="absolute -right-3 bottom-1 h-[65%] w-[65%] rounded-full bg-teal-500" />
-        <div className="absolute bottom-0 h-[20%] w-full bg-emerald-200" />
-      </div>
-    );
-  }
-
-  if (selection === "Romantic") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-rose-200">
-        <div className="absolute -right-3 top-1 h-[75%] w-[75%] rounded-full bg-rose-500" />
-        <div className="absolute bottom-[5%] left-[8%] h-[45%] w-[45%] rounded-full bg-red-900" />
-        <div className="absolute left-[30%] top-[10%] h-[25%] w-[25%] rounded-full bg-pink-100" />
-      </div>
-    );
-  }
-
-  if (selection === "Focused") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-blue-950">
-        <div className="absolute left-[15%] top-[15%] h-[60%] w-[60%] border-4 border-teal-400" />
-        <div className="absolute left-[35%] top-[35%] h-[60%] w-[60%] border-4 border-violet-300" />
-      </div>
-    );
-  }
-
-  if (selection === "Studying") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-amber-100">
-        <div className="absolute left-[15%] top-[15%] h-[65%] w-[45%] bg-amber-700" />
-        <div className="absolute left-[25%] top-[25%] h-[45%] w-[25%] bg-amber-100" />
-        <div className="absolute -right-2 bottom-0 h-[55%] w-[55%] rounded-full bg-orange-300" />
-      </div>
-    );
-  }
-
-  if (selection === "Working Out") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-red-500">
-        <div className="absolute -left-3 top-2 h-[60%] w-[60%] rotate-45 bg-orange-400" />
-        <div className="absolute right-[15%] top-[10%] h-[75%] w-[12%] -rotate-12 bg-yellow-300" />
-        <div className="absolute bottom-[10%] left-[20%] h-[25%] w-[50%] bg-pink-500" />
-      </div>
-    );
-  }
-
-  if (selection === "Celebrating") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-violet-500">
-        <div className="absolute left-[10%] top-[10%] h-[35%] w-[35%] rounded-full bg-yellow-300" />
-        <div className="absolute right-[5%] top-[30%] h-[45%] w-[45%] rounded-full bg-pink-400" />
-        <div className="absolute bottom-0 h-[20%] w-full bg-cyan-300" />
-      </div>
-    );
-  }
-
-  if (selection === "Road Trip") {
-    return (
-      <div className="relative h-full w-full overflow-hidden rounded-full bg-sky-300">
-        <div className="absolute bottom-0 h-[40%] w-full bg-orange-300" />
-        <div className="absolute bottom-[25%] left-0 h-[6%] w-full rotate-6 bg-yellow-100" />
-        <div className="absolute right-[10%] top-[10%] h-[30%] w-[30%] rounded-full bg-yellow-300" />
-      </div>
-    );
-  }
+  const colors = recordData[selection]?.colors ?? [
+    "#27272A",
+    "#52525B",
+    "#71717A",
+    "#A1A1AA",
+  ];
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-full bg-zinc-800">
-      <div className="absolute left-[15%] top-[10%] h-[65%] w-[65%] rounded-full bg-red-900" />
-      <div className="absolute left-[52%] top-0 h-full w-[5%] rotate-[25deg] bg-black" />
-      <div className="absolute bottom-0 h-[20%] w-full bg-violet-300" />
+    <div
+      className="relative h-full w-full overflow-hidden rounded-full"
+      style={{ backgroundColor: colors[0] }}
+    >
+      <div
+        className="absolute -right-2 top-1 h-[70%] w-[70%] rounded-full"
+        style={{ backgroundColor: colors[1] }}
+      />
+      <div
+        className="absolute bottom-0 h-[25%] w-full"
+        style={{ backgroundColor: colors[2] }}
+      />
+      <div
+        className="absolute left-[15%] top-[25%] h-[32%] w-[32%] rounded-full"
+        style={{ backgroundColor: colors[3] }}
+      />
+    </div>
+  );
+}
+
+function RecordCard({
+  name,
+  onSelect,
+}: {
+  name: string;
+  onSelect: () => void;
+}) {
+  const colors = recordData[name].colors;
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className="group shrink-0 text-left"
+    >
+      <div className="relative h-32 w-36">
+        <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
+          <div
+            className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ backgroundColor: colors[0] }}
+          />
+        </div>
+
+        <div
+          className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded transition-transform duration-300 group-hover:-translate-y-2"
+          style={{ backgroundColor: colors[0] }}
+        >
+          <div
+            className="absolute -right-4 top-3 h-20 w-20 rounded-full"
+            style={{ backgroundColor: colors[1] }}
+          />
+          <div
+            className="absolute bottom-0 h-8 w-full"
+            style={{ backgroundColor: colors[2] }}
+          />
+          <div
+            className="absolute left-4 top-6 h-10 w-10 rounded-full"
+            style={{ backgroundColor: colors[3] }}
+          />
+        </div>
+      </div>
+
+      <p className="mt-2 text-sm">{name}</p>
+    </button>
+  );
+}
+
+function PaletteArtwork({ colors }: { colors: string[] }) {
+  return (
+    <div
+      className="relative aspect-square w-full overflow-hidden rounded-[26px]"
+      style={{ backgroundColor: colors[3] }}
+    >
+      <div
+        className="absolute -bottom-[12%] -left-[15%] h-[76%] w-[76%] rounded-full"
+        style={{ backgroundColor: colors[0] }}
+      />
+      <div
+        className="absolute -right-[17%] -top-[10%] h-[67%] w-[67%] rounded-full"
+        style={{ backgroundColor: colors[1] }}
+      />
+      <div
+        className="absolute bottom-[3%] right-[4%] h-[36%] w-[36%] rounded-full"
+        style={{ backgroundColor: colors[2] }}
+      />
+      <div
+        className="absolute left-[43%] top-[41%] h-[18%] w-[18%] rounded-full"
+        style={{ backgroundColor: colors[3] }}
+      />
+      <div
+        className="absolute right-[2%] top-[46%] h-[7%] w-[25%] rounded-full opacity-90"
+        style={{ backgroundColor: colors[4] }}
+      />
     </div>
   );
 }
 
 export default function Home() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [mode, setMode] = useState<"Mood" | "Moment">("Mood");
+  const [mode, setMode] = useState<Mode>("Mood");
 
   const [needleDropping, setNeedleDropping] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isReady, setIsReady] = useState(false);
 
+  const [tracks, setTracks] = useState<SpotifyTrack[]>([]);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const [showResults, setShowResults] = useState(false);
+  const [resultsVisible, setResultsVisible] = useState(false);
+
   const needleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const generationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestId = useRef(0);
 
   const playerBusy = needleDropping || isSpinning || isGenerating;
+  const selectedData = selectedMood ? recordData[selectedMood] : null;
 
-  function clearPlayerTimers() {
+  useEffect(() => {
+    if (!showResults) {
+      setResultsVisible(false);
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      setResultsVisible(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [showResults]);
+
+  useEffect(() => {
+    return () => {
+      if (needleTimer.current) {
+        clearTimeout(needleTimer.current);
+      }
+    };
+  }, []);
+
+  function clearNeedleTimer() {
     if (needleTimer.current) {
       clearTimeout(needleTimer.current);
       needleTimer.current = null;
-    }
-
-    if (generationTimer.current) {
-      clearTimeout(generationTimer.current);
-      generationTimer.current = null;
     }
   }
 
@@ -141,40 +248,109 @@ export default function Home() {
     if (playerBusy) return;
 
     setSelectedMood(selection);
+    setTracks([]);
+    setApiError(null);
     setIsReady(false);
+  }
+
+  async function generateMoodwave(selection: string, currentRequest: number) {
+    try {
+      const minimumSpin = wait(2500);
+
+      const spotifyRequest = fetch(
+        `/api/spotify?selection=${encodeURIComponent(selection)}`
+      ).then(async (response) => {
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "Spotify couldn't find music for this Moodwave."
+          );
+        }
+
+        return data;
+      });
+
+      const [spotifyData] = await Promise.all([
+        spotifyRequest,
+        minimumSpin,
+      ]);
+
+      if (requestId.current !== currentRequest) {
+        return;
+      }
+
+      const newTracks: SpotifyTrack[] = spotifyData.tracks ?? [];
+
+      setIsGenerating(false);
+      setIsSpinning(false);
+
+      if (newTracks.length === 0) {
+        setTracks([]);
+        setIsReady(false);
+        setApiError(
+          "We couldn't find any tracks for this Moodwave. Try dropping the needle again."
+        );
+        return;
+      }
+
+      setTracks(newTracks);
+      setApiError(null);
+      setIsReady(true);
+      setShowResults(true);
+    } catch (error) {
+      if (requestId.current !== currentRequest) {
+        return;
+      }
+
+      console.error("Moodwave generation error:", error);
+
+      setIsGenerating(false);
+      setIsSpinning(false);
+      setIsReady(false);
+      setTracks([]);
+      setApiError(
+        "We couldn't find your sound. Try dropping the needle again."
+      );
+    }
   }
 
   function dropNeedle() {
     if (!selectedMood || playerBusy) return;
 
-    clearPlayerTimers();
+    clearNeedleTimer();
 
+    const selection = selectedMood;
+    const currentRequest = requestId.current + 1;
+    requestId.current = currentRequest;
+
+    setApiError(null);
+    setTracks([]);
     setNeedleDropping(true);
     setIsReady(false);
 
-    // First, move the tonearm onto the vinyl.
     needleTimer.current = setTimeout(() => {
+      if (requestId.current !== currentRequest) {
+        return;
+      }
+
       setNeedleDropping(false);
       setIsSpinning(true);
       setIsGenerating(true);
 
-      // Temporary fake loading state.
-      // Later, the Spotify API request will replace this.
-      generationTimer.current = setTimeout(() => {
-        setIsGenerating(false);
-        setIsSpinning(false);
-        setIsReady(true);
-      }, 2500);
+      generateMoodwave(selection, currentRequest);
     }, 900);
   }
 
   function stopRecord() {
-    clearPlayerTimers();
+    requestId.current += 1;
+    clearNeedleTimer();
 
     setNeedleDropping(false);
     setIsSpinning(false);
     setIsGenerating(false);
     setIsReady(false);
+    setApiError(null);
   }
 
   function togglePlayback() {
@@ -187,8 +363,34 @@ export default function Home() {
     }
   }
 
+  function closeResults() {
+    setResultsVisible(false);
+
+    setTimeout(() => {
+      setShowResults(false);
+    }, 350);
+  }
+
+  function makeAnother() {
+    requestId.current += 1;
+    clearNeedleTimer();
+
+    setResultsVisible(false);
+
+    setTimeout(() => {
+      setShowResults(false);
+      setSelectedMood(null);
+      setTracks([]);
+      setApiError(null);
+      setNeedleDropping(false);
+      setIsSpinning(false);
+      setIsGenerating(false);
+      setIsReady(false);
+    }, 350);
+  }
+
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="relative min-h-screen overflow-x-hidden bg-black text-white">
       <header className="flex items-center justify-between px-10 py-8">
         <div className="flex items-center gap-3">
           <div className="h-5 w-5 rounded-full border-4 border-yellow-300" />
@@ -201,7 +403,7 @@ export default function Home() {
       </header>
 
       <section className="grid min-h-[80vh] grid-cols-1 items-center gap-16 px-10 lg:grid-cols-2">
-        {/* LEFT SIDE */}
+        {/* LEFT */}
         <div className="min-w-0">
           <p className="mb-4 text-xs font-bold tracking-[0.2em] text-yellow-300">
             YOUR MOOD, IN SOUND + COLOR
@@ -212,11 +414,11 @@ export default function Home() {
           </h1>
 
           <p className="mt-6 max-w-lg text-lg leading-7 text-zinc-400">
-            Flip through the crate and pull a record for how you feel, or what
-            you&apos;re doing.
+            Flip through the collection and pull a record for how you feel, or
+            what you&apos;re doing.
           </p>
 
-          {/* Mood / Moment toggle */}
+          {/* MODE */}
           <div
             className={`mt-8 inline-flex rounded-full border border-zinc-700 p-1 transition ${
               playerBusy ? "pointer-events-none opacity-50" : ""
@@ -247,250 +449,22 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Record collection */}
+          {/* RECORDS */}
           <div
             className={`mt-8 flex gap-5 overflow-x-auto pb-5 pt-2 transition ${
               playerBusy ? "pointer-events-none opacity-50" : ""
             }`}
           >
-            {mode === "Mood" ? (
-              <>
-                {/* Happy */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Happy")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-yellow-300" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-yellow-300 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute -right-4 top-3 h-20 w-20 rounded-full bg-orange-400" />
-                      <div className="absolute bottom-0 h-8 w-full bg-emerald-200" />
-                      <div className="absolute left-4 top-6 h-10 w-10 rounded-full bg-pink-400" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Happy</p>
-                </button>
-
-                {/* Sad */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Sad")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-300" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-slate-800 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute -left-4 top-4 h-20 w-20 rounded-full bg-indigo-400" />
-                      <div className="absolute bottom-5 left-0 h-1 w-full bg-slate-300" />
-                      <div className="absolute bottom-9 left-0 h-1 w-full bg-blue-300" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Sad</p>
-                </button>
-
-                {/* Energetic */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Energetic")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-fuchsia-500" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-lime-300 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute -right-4 -top-4 h-20 w-20 rotate-45 bg-orange-500" />
-                      <div className="absolute bottom-3 left-5 h-12 w-12 rounded-full bg-fuchsia-500" />
-                      <div className="absolute right-4 top-12 h-5 w-16 rotate-12 bg-red-500" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Energetic</p>
-                </button>
-
-                {/* Calm */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Calm")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal-300" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-stone-100 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute -left-5 top-3 h-24 w-24 rounded-full bg-sky-300" />
-                      <div className="absolute -right-5 bottom-3 h-20 w-20 rounded-full bg-teal-500" />
-                      <div className="absolute bottom-0 h-7 w-full bg-emerald-200" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Calm</p>
-                </button>
-
-                {/* Romantic */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Romantic")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose-300" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-rose-200 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute -right-6 top-2 h-24 w-24 rounded-full bg-rose-500" />
-                      <div className="absolute bottom-3 left-3 h-14 w-14 rounded-full bg-red-900" />
-                      <div className="absolute left-8 top-4 h-8 w-8 rounded-full bg-pink-100" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Romantic</p>
-                </button>
-
-                {/* Focused */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Focused")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-300" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-blue-950 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute left-5 top-5 h-20 w-20 border-4 border-teal-400" />
-                      <div className="absolute left-10 top-10 h-20 w-20 border-4 border-violet-300" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Focused</p>
-                </button>
-              </>
-            ) : (
-              <>
-                {/* Studying */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Studying")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-200" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-amber-100 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute left-5 top-5 h-20 w-16 bg-amber-700" />
-                      <div className="absolute left-8 top-8 h-14 w-10 bg-amber-100" />
-                      <div className="absolute -right-5 bottom-0 h-20 w-20 rounded-full bg-orange-300" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Studying</p>
-                </button>
-
-                {/* Working Out */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Working Out")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-500" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-red-500 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute -left-5 top-4 h-20 w-20 rotate-45 bg-orange-400" />
-                      <div className="absolute right-3 top-5 h-24 w-5 -rotate-12 bg-yellow-300" />
-                      <div className="absolute bottom-3 left-6 h-10 w-16 bg-pink-500" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Working Out</p>
-                </button>
-
-                {/* Celebrating */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Celebrating")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-400" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-violet-500 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute left-3 top-3 h-10 w-10 rounded-full bg-yellow-300" />
-                      <div className="absolute right-3 top-8 h-14 w-14 rounded-full bg-pink-400" />
-                      <div className="absolute bottom-0 h-8 w-full bg-cyan-300" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Celebrating</p>
-                </button>
-
-                {/* Road Trip */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Road Trip")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-400" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-sky-300 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute bottom-0 h-12 w-full bg-orange-300" />
-                      <div className="absolute bottom-4 left-0 h-2 w-full rotate-6 bg-yellow-100" />
-                      <div className="absolute right-4 top-4 h-10 w-10 rounded-full bg-yellow-300" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Road Trip</p>
-                </button>
-
-                {/* Heartbreak */}
-                <button
-                  type="button"
-                  onClick={() => selectRecord("Heartbreak")}
-                  className="group shrink-0 text-left"
-                >
-                  <div className="relative h-32 w-36">
-                    <div className="absolute right-0 top-2 h-28 w-28 rounded-full border border-zinc-700 bg-zinc-950 transition-transform duration-300 group-hover:translate-x-3">
-                      <div className="absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-900" />
-                    </div>
-
-                    <div className="absolute left-0 top-0 h-32 w-32 overflow-hidden rounded bg-zinc-800 transition-transform duration-300 group-hover:-translate-y-2">
-                      <div className="absolute left-5 top-4 h-20 w-20 rounded-full bg-red-900" />
-                      <div className="absolute left-[62px] top-3 h-28 w-1 rotate-[25deg] bg-black" />
-                      <div className="absolute bottom-0 h-7 w-full bg-violet-300" />
-                    </div>
-                  </div>
-
-                  <p className="mt-2 text-sm">Heartbreak</p>
-                </button>
-              </>
-            )}
+            {(mode === "Mood" ? moods : moments).map((name) => (
+              <RecordCard
+                key={name}
+                name={name}
+                onSelect={() => selectRecord(name)}
+              />
+            ))}
           </div>
 
-          {/* Main button — accessible/obvious way to control player */}
+          {/* MAIN CONTROL */}
           <button
             type="button"
             onClick={togglePlayback}
@@ -523,7 +497,7 @@ export default function Home() {
           </button>
         </div>
 
-        {/* RIGHT SIDE — TURNTABLE */}
+        {/* TURNTABLE */}
         <div className="flex flex-col items-center">
           <div
             className="relative aspect-square w-full max-w-[560px] rounded-[32px] border border-zinc-700 bg-zinc-900"
@@ -532,13 +506,10 @@ export default function Home() {
                 "0 28px 50px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -8px 18px rgba(0,0,0,0.35)",
             }}
           >
-            {/* Top highlight */}
             <div className="pointer-events-none absolute inset-[2px] rounded-[30px] border-t border-white/5" />
 
-            {/* Platter shadow */}
             <div className="absolute left-[5%] top-[8.5%] aspect-square w-[82%] rounded-full bg-black opacity-80 blur-[1px]" />
 
-            {/* Platter */}
             <div
               className="absolute left-[5%] top-[6%] aspect-square w-[82%] rounded-full border border-zinc-500 bg-zinc-800"
               style={{
@@ -551,9 +522,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => {
-                      if (playerBusy) {
-                        stopRecord();
-                      }
+                      if (playerBusy) stopRecord();
                     }}
                     aria-label={
                       playerBusy
@@ -571,7 +540,6 @@ export default function Home() {
                         "inset 8px 8px 18px rgba(255,255,255,0.025), inset -10px -10px 20px rgba(0,0,0,0.8), 0 3px 5px rgba(0,0,0,0.8)",
                     }}
                   >
-                    {/* Vinyl grooves */}
                     <div className="absolute inset-[5%] rounded-full border border-zinc-800/80" />
                     <div className="absolute inset-[10%] rounded-full border border-zinc-800/60" />
                     <div className="absolute inset-[15%] rounded-full border border-zinc-800/70" />
@@ -579,15 +547,12 @@ export default function Home() {
                     <div className="absolute inset-[25%] rounded-full border border-zinc-800/60" />
                     <div className="absolute inset-[30%] rounded-full border border-zinc-900" />
 
-                    {/* Vinyl reflection */}
                     <div className="absolute left-[13%] top-[8%] h-[38%] w-[16%] rotate-[35deg] rounded-full bg-white/[0.025]" />
 
-                    {/* Center artwork */}
                     <div className="absolute left-1/2 top-1/2 h-[45%] w-[45%] -translate-x-1/2 -translate-y-1/2 rounded-full shadow-lg">
                       <AlbumLabel selection={selectedMood} />
                     </div>
 
-                    {/* Spindle */}
                     <div
                       className="absolute left-1/2 top-1/2 z-20 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-300"
                       style={{
@@ -600,18 +565,16 @@ export default function Home() {
                   </button>
                 ) : (
                   <>
-                    {/* Empty platter */}
                     <div className="absolute inset-[5%] rounded-full border border-zinc-800/60" />
                     <div className="absolute inset-[15%] rounded-full border border-zinc-800/40" />
                     <div className="absolute inset-[25%] rounded-full border border-zinc-800/30" />
-
                     <div className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-300" />
                   </>
                 )}
               </div>
             </div>
 
-            {/* Tonearm base */}
+            {/* TONEARM BASE */}
             <div
               className="absolute right-[4%] top-[7%] h-16 w-16 rounded-full border border-zinc-500 bg-zinc-800"
               style={{
@@ -623,7 +586,7 @@ export default function Home() {
               <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-400" />
             </div>
 
-            {/* INTERACTIVE TONEARM */}
+            {/* TONEARM */}
             <button
               type="button"
               onClick={togglePlayback}
@@ -638,12 +601,9 @@ export default function Home() {
               className={`group absolute right-[9.5%] top-[14%] z-30 h-[57%] w-[28px] origin-top bg-transparent outline-none transition-transform duration-[900ms] ease-in-out ${
                 playerBusy || isReady ? "rotate-[18deg]" : "-rotate-12"
               } ${
-                selectedMood
-                  ? "cursor-pointer"
-                  : "cursor-default"
+                selectedMood ? "cursor-pointer" : "cursor-default"
               } focus-visible:ring-2 focus-visible:ring-yellow-300`}
             >
-              {/* Visible metal arm */}
               <div
                 className={`absolute left-1/2 top-0 h-full w-[9px] -translate-x-1/2 rounded-full transition duration-200 ${
                   selectedMood ? "group-hover:brightness-150" : ""
@@ -655,7 +615,6 @@ export default function Home() {
                 }}
               />
 
-              {/* Cartridge */}
               <div
                 className={`absolute -bottom-2 left-1/2 h-8 w-5 -translate-x-1/2 rounded-sm bg-zinc-300 shadow-lg transition ${
                   selectedMood ? "group-hover:bg-white" : ""
@@ -665,7 +624,7 @@ export default function Home() {
               </div>
             </button>
 
-            {/* Power/activity indicator */}
+            {/* ACTIVITY LIGHT */}
             <div
               className="absolute bottom-[7%] left-[7%] flex h-11 w-11 items-center justify-center rounded-full border border-zinc-600 bg-zinc-950"
               style={{
@@ -680,7 +639,6 @@ export default function Home() {
               />
             </div>
 
-            {/* Speed */}
             <div className="absolute bottom-[8%] right-[7%] text-right">
               <p className="text-[9px] tracking-[0.2em] text-zinc-600">
                 SPEED
@@ -689,16 +647,24 @@ export default function Home() {
             </div>
           </div>
 
-          {/* PLAYER STATUS */}
-          <div className="mt-6 min-h-[52px] text-center">
-            {!selectedMood ? (
+          {/* STATUS */}
+          <div className="mt-6 min-h-[58px] text-center">
+            {apiError ? (
+              <>
+                <p className="text-sm font-medium text-red-300">
+                  We couldn&apos;t find your sound.
+                </p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Try dropping the needle again.
+                </p>
+              </>
+            ) : !selectedMood ? (
               <>
                 <p className="text-sm font-medium text-white">
                   Select a vinyl to get started.
                 </p>
-
                 <p className="mt-1 text-xs text-zinc-500">
-                  Choose a mood or moment from the crate.
+                  Choose a mood or moment from the vinyl collection.
                 </p>
               </>
             ) : needleDropping ? (
@@ -706,9 +672,8 @@ export default function Home() {
                 <p className="text-sm font-medium text-white">
                   Dropping the needle...
                 </p>
-
                 <p className="mt-1 text-xs text-zinc-500">
-                  Click the tonearm or Stop Record to cancel.
+                  Getting your Moodwave started.
                 </p>
               </>
             ) : isGenerating ? (
@@ -716,9 +681,8 @@ export default function Home() {
                 <p className="text-sm font-medium text-white">
                   Finding your sound...
                 </p>
-
                 <p className="mt-1 text-xs text-zinc-500">
-                  Click the vinyl or lift the tonearm to stop.
+                  Matching {selectedMood.toLowerCase()} with music + color.
                 </p>
               </>
             ) : isReady ? (
@@ -726,7 +690,6 @@ export default function Home() {
                 <p className="text-sm font-medium text-yellow-300">
                   Your Moodwave is ready.
                 </p>
-
                 <p className="mt-1 text-xs text-zinc-500">
                   {selectedMood} has been translated into sound + color.
                 </p>
@@ -736,7 +699,6 @@ export default function Home() {
                 <p className="text-sm font-medium text-white">
                   {selectedMood} is on the platter.
                 </p>
-
                 <p className="mt-1 text-xs text-zinc-500">
                   Drop the needle or click the tonearm to begin.
                 </p>
@@ -745,6 +707,185 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* RESULTS OVERLAY */}
+      {showResults && selectedMood && selectedData && (
+        <div
+          className={`fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md transition-opacity duration-500 md:p-7 ${
+            resultsVisible ? "opacity-100" : "opacity-0"
+          }`}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${selectedMood} Moodwave results`}
+        >
+          <div
+            className={`relative max-h-[94vh] w-full max-w-[1500px] overflow-y-auto rounded-[30px] border border-zinc-800 bg-[#090909] shadow-2xl transition-all duration-500 ease-out ${
+              resultsVisible
+                ? "translate-y-0 scale-100 opacity-100"
+                : "translate-y-5 scale-[0.98] opacity-0"
+            }`}
+          >
+            {/* OVERLAY HEADER */}
+            <div className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-900 bg-[#090909]/95 px-6 py-5 backdrop-blur-md md:px-10">
+              <button
+                type="button"
+                onClick={closeResults}
+                className="flex items-center gap-2 text-sm text-zinc-400 transition hover:text-white"
+              >
+                <span aria-hidden="true">←</span>
+                Back to records
+              </button>
+
+              <button
+                type="button"
+                onClick={closeResults}
+                aria-label="Close Moodwave results"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-800 text-xl text-zinc-400 transition hover:border-zinc-600 hover:bg-zinc-900 hover:text-white"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* RESULTS */}
+            <div className="grid gap-12 px-6 py-9 md:px-10 md:py-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16 xl:px-14">
+              {/* WAVELENGTH */}
+              <section>
+                <p className="text-xs font-bold tracking-[0.28em] text-yellow-300">
+                  YOUR WAVELENGTH
+                </p>
+
+                <h2 className="mt-4 break-words text-5xl font-semibold tracking-tight md:text-7xl xl:text-8xl">
+                  {selectedMood}
+                </h2>
+
+                <p className="mt-3 text-lg text-zinc-400">
+                  {selectedData.tagline}
+                </p>
+
+                <div className="mt-9 max-w-[580px]">
+                  <PaletteArtwork colors={selectedData.colors} />
+                </div>
+
+                <div className="mt-5 flex max-w-[580px] gap-2">
+                  {selectedData.colors.map((color) => (
+                    <div
+                      key={color}
+                      className="h-2 flex-1 rounded-full"
+                      style={{ backgroundColor: color }}
+                      title={color}
+                    />
+                  ))}
+                </div>
+
+                <div className="mt-3 flex max-w-[580px] justify-between">
+                  {selectedData.colors.map((color) => (
+                    <span
+                      key={color}
+                      className="hidden text-[9px] uppercase tracking-wide text-zinc-600 sm:block"
+                    >
+                      {color}
+                    </span>
+                  ))}
+                </div>
+              </section>
+
+              {/* MUSIC */}
+              <section className="min-w-0 lg:pt-1">
+                <div className="flex items-end justify-between gap-5 border-b border-zinc-800 pb-6">
+                  <div>
+                    <p className="text-xs font-medium tracking-[0.25em] text-zinc-500">
+                      {mode === "Mood" ? "MOOD MIX" : "MOMENT MIX"}
+                    </p>
+
+                    <h3 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">
+                      For your ears
+                    </h3>
+                  </div>
+
+                  <p className="shrink-0 text-xs text-zinc-500">
+                    {tracks.length} tracks
+                  </p>
+                </div>
+
+                {/* REAL SPOTIFY TRACKS */}
+                <div>
+                  {tracks.map((track, index) => (
+                    <div
+                      key={track.id}
+                      className="grid grid-cols-[28px_64px_minmax(0,1fr)] items-center gap-4 border-b border-zinc-800 py-5 md:grid-cols-[28px_64px_minmax(0,1fr)_auto]"
+                    >
+                      <span className="text-xs text-zinc-500">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+
+                      {track.image ? (
+                        <img
+                          src={track.image}
+                          alt=""
+                          className="h-16 w-16 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="h-16 w-16 rounded-lg"
+                          style={{
+                            backgroundColor:
+                              selectedData.colors[
+                                index % selectedData.colors.length
+                              ],
+                          }}
+                        />
+                      )}
+
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-white md:text-base">
+                          {track.title}
+                        </p>
+
+                        <p className="mt-1 truncate text-sm text-zinc-500">
+                          {track.artist}
+                        </p>
+                      </div>
+
+                      <a
+                        href={track.spotifyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="col-start-3 mt-2 w-fit rounded-full bg-[#1DB954] px-5 py-2.5 text-xs font-semibold text-black transition hover:scale-[1.03] hover:bg-[#1ed760] md:col-auto md:mt-0"
+                      >
+                        Open in Spotify ↗
+                      </a>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ACTIONS */}
+                <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    disabled
+                    title="Sharing will be added later"
+                    className="cursor-not-allowed rounded-full bg-[#F4EFE4] px-6 py-4 text-sm font-semibold text-black opacity-45"
+                  >
+                    Share your Moodwave
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={makeAnother}
+                    className="rounded-full border border-zinc-700 px-6 py-4 text-sm font-semibold text-white transition hover:border-zinc-500 hover:bg-zinc-900"
+                  >
+                    ↻ Make another Moodwave
+                  </button>
+                </div>
+
+                <p className="mt-4 text-xs leading-5 text-zinc-600">
+                  Music data provided through Spotify.
+                </p>
+              </section>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
